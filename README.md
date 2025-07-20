@@ -1,67 +1,69 @@
-# 🤖 Reply X – n8n Twitter Scraper + Character Response Workflow
+# 🤖 Reply X – n8n Twitter Scraper & Character Responder
 
-This is an advanced **n8n workflow** that:
-- Finds tweets based on specific hashtags/phrases
-- Parses relevant tweet data
-- Enriches it with fictional character data
-- Sends the results to a **Google Sheet**
-- Optionally constructs AI prompts for character-style tweet replies
+This repository contains a powerful [n8n](https://n8n.io/) workflow called **Reply X** that:
+
+- Fetches relevant tweets using a custom Twitter API
+- Parses and enriches the tweets with metadata
+- Saves tweet data to Google Sheets
+- Combines tweet content with character profiles
+- Generates custom prompts to help AI personas craft tailored replies
+
+> Designed for creators, indie hackers, and automation lovers.
 
 ---
 
 ## 🚀 Features
 
-- 🔍 **Twitter Search** – Uses the Twitter API (via `twitterapi.io`) to find top tweets
-- 💬 **Custom Code Processing** – Extracts and formats tweet data
-- 🗂 **Google Sheets Integration** – Appends enriched tweet info to a connected sheet
-- 🧠 **AI Prompt Composer** – Merges tweet with persona data to create context-rich prompts
-- 📆 **Scheduled Execution** – Can be run manually or via scheduled triggers
+- 🔍 **Advanced Twitter Search**  
+  Uses `twitterapi.io` to fetch top tweets related to:
+  - `#buildinpublic`, `#indiehacker`, `#founder`, `#nocode`, `#saas`, and more
+  - Tweets containing phrases like “need a website”, “build an MVP”, “automation help”
+
+- 📑 **Custom Code Node**  
+  Processes tweets to:
+  - Format metadata
+  - Add status flags (`waiting`)
+  - Prepare for sheet integration
+
+- 📊 **Google Sheets Integration**  
+  Auto-appends tweet info like tweet ID, content, likes, views, replies, etc.
+
+- 🧠 **Character AI Prompt Builder**  
+  Merges tweet data with character records to generate rich, story-based reply prompts
+
+- 🕓 **Scheduled Automation**  
+  Run the bot automatically at intervals or trigger it manually
 
 ---
 
-## 📦 Workflow Summary
+## 🧰 Tech Stack
 
-### 1. **Triggers**
-- `ManualTrigger` – for testing
-- `ScheduleTrigger` – to run on intervals
-
-### 2. **Tweet Fetch & Processing**
-- `HTTP Request`: pulls tweets via `twitterapi.io`
-- `Code`: parses and formats the tweet response (adds metadata, default "waiting" status)
-
-### 3. **Data Handling**
-- `Google Sheets`: Appends tweets with all metadata
-
-### 4. **Prompt Generation**
-- If fictional characters are stored in the same Google Sheet, the workflow merges character data with tweets
-- A function node creates a full **prompt + user_message** for LLM replies
+| Component       | Description                                     |
+|----------------|-------------------------------------------------|
+| n8n             | Workflow automation tool                        |
+| HTTP Request    | Fetches tweets from custom API (`twitterapi.io`) |
+| Code Node       | JavaScript logic to parse and transform tweets |
+| Google Sheets   | Stores tweets and character profiles            |
+| Merge Node      | Joins tweet and character data                  |
+| Final Code Node | Generates structured prompt for AI personas    |
 
 ---
 
-## 🧾 Requirements
+## 📁 Structure
 
-- ✅ An [n8n instance](https://n8n.io/)
-- ✅ A working [Google Sheets OAuth2 credential](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.googlesheets/)
-- ✅ A Twitter data API from `twitterapi.io`
-- ✅ (Optional) AI model integration if you want to auto-reply using the prompts
-
----
-
-## 🔐 Environment & Credentials
-
-### 1. **HTTP Header Auth for Twitter API**
-Set via the **HTTP Request** node using generic credentials.
-
-### 2. **Google Sheets OAuth2**
-Make sure:
-- You've granted n8n permission to your Google account
-- The document ID and Sheet name match your intended destination
+N8N-workflows/
+├── workflows/
+│ └── reply-x.json # The core n8n workflow file
+├── .gitignore
+├── README.md
+└── LICENSE (optional)
 
 ---
 
 ## 🛠 Setup Instructions
 
-1. Clone this repo:
-   ```bash
-   git clone https://github.com/yourusername/reply-x-n8n-workflow.git
-   cd reply-x-n8n-workflow
+### 1. Clone this Repo
+
+```bash
+git clone https://github.com/Izunna-Izunna/N8N-workflows.git
+cd N8N-workflows
