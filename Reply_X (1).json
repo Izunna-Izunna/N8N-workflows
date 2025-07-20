@@ -1,0 +1,3526 @@
+{
+  "name": "Reply X",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e6572ff0-c0e0-465f-8ff8-22191556ea2a",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.twitterapi.io/twitter/tweet/advanced_search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "(#buildinpublic OR #indiehacker OR #founder OR #nocode OR #smallbusiness OR #techstartup OR #saas OR \"need a website\" OR \"build an MVP\" OR \"automation help\" OR \"launching my app\")"
+            },
+            {
+              "name": "queryType",
+              "value": "Top"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "128f08f2-ee86-4170-a818-35910ddbd342",
+      "name": "Twitter Demo",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0x3Uar38hP9St3BU",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// This approach handles both single tweets and collections\n// It focuses on properly formatting the output for n8n\n\n// 1. Log the raw input structure for debugging\nconsole.log(\"Raw input:\", JSON.stringify($input.all(), null, 2));\n\n// 2. Date‐formatting helper\nfunction formatDate(dateString) {\n  if (!dateString) return \"\";\n  try {\n    const d = new Date(dateString);\n    return d.toLocaleString(\"en-US\", {\n      year:   \"numeric\",\n      month:  \"long\",\n      day:    \"numeric\",\n      hour:   \"2-digit\",\n      minute: \"2-digit\",\n    });\n  } catch {\n    return dateString;\n  }\n}\n\n// 3. Extract the array of tweets from the HTTP Request output\nconst allInput = $input.all();\nif (!allInput.length || !allInput[0].json.tweets) {\n  // No tweets array found → return empty\n  return [];\n}\nconst tweetArray = allInput[0].json.tweets;\n\n// 4. Transform each tweet and add status/tweet fields\nconst result = tweetArray.map((t) => {\n  const json = t || {};\n  const metrics = json.public_metrics || {};\n\n  const tweetData = {\n    tweetId:      json.id || \"\",\n    url:          json.twitterUrl || json.url || \"\",\n    content:      json.text || \"\",\n    likeCount:    metrics.like_count       ?? 0,\n    viewCount:    metrics.impression_count ?? 0,\n    retweetCount: metrics.retweet_count    ?? 0,\n    quoteCount:   metrics.quote_count      ?? 0,\n    replyCount:   metrics.reply_count      ?? 0,\n    createdAt:    formatDate(json.createdAt || json.created_at),\n    status:       \"waiting\",    // new column, default “waiting”\n    tweet:        \"\"            // new column, will be blank until a reply is posted\n  };\n\n  console.log(\"Processing tweet:\", tweetData.tweetId);\n  return { json: tweetData };\n});\n\n// 5. Return the mapped array back to n8n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        0
+      ],
+      "id": "665ca383-6ad3-4a05-a514-d78d124e507b",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ",
+          "mode": "list",
+          "cachedResultName": "Scrape sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "name"
+          ],
+          "schema": [
+            {
+              "id": "tweetId",
+              "displayName": "tweetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "likeCount",
+              "displayName": "likeCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "viewCount",
+              "displayName": "viewCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "retweetCount",
+              "displayName": "retweetCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "quoteCount",
+              "displayName": "quoteCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "replyCount",
+              "displayName": "replyCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tweet",
+              "displayName": "tweet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        640,
+        0
+      ],
+      "id": "f4882c1f-36d0-452c-b88f-ae3ec7ac97c8",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ken1f6zXHNnF73UL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -380,
+        260
+      ],
+      "id": "200d92be-3f82-4801-8378-bd49004fa727",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        260
+      ],
+      "id": "e1adf10c-c980-4ed6-b54b-82d56b87b843",
+      "name": "Wait",
+      "webhookId": "2df274fd-1ff5-4d75-bbee-430a84a070cb"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ",
+          "mode": "list",
+          "cachedResultName": "Scrape sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        100,
+        200
+      ],
+      "id": "933f0cc8-8e4b-4ebd-accc-124f626cc637",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ken1f6zXHNnF73UL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        340,
+        280
+      ],
+      "id": "765dcfe0-352f-44f6-b068-8f1bc3583779",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * n8n Function Node\n * -----------------\n * Input: Merged items (each containing one tweet + one character record)\n * Output: For each item, produce:\n *   - `prompt`: a detailed instruction for the AI, embedding character attributes and the tweet content\n *   - `user_message`: the tweet’s text (used as the user’s message for the LLM)\n */\n\nconst items = $input.all();\n\nconst result = items.map((item) => {\n  const data = item.json;\n\n  // Extract tweet fields\n  const tweetId    = data.tweetId || \"\";\n  const tweetText  = data.content  || \"\";\n  const tweetURL   = data.url      || \"\";\n\n  // Extract character fields\n  const name       = data.name       || \"Unnamed\";\n  const age        = data.age        || \"\";\n  const backstory  = data.backstory  || \"\";\n  const personality = data.personality || {};\n  const passions   = data.passions   || {};\n  const goals      = data.goals      || \"\";\n  const behavior   = data.behavior   || {};\n  const tasks      = data.tasks      || {};\n\n  // Serialize JSONB fields into human-readable snippets\n  // (Assumes personality, passions, behavior, tasks are plain objects)\n  const personalityText = Object.entries(personality)\n    .map(([k, v]) => `${k}: ${v}`)\n    .join(\"; \");\n  const passionsText = Object.entries(passions)\n    .map(([k, v]) => `${k}: ${v}`)\n    .join(\"; \");\n  const behaviorText = Object.entries(behavior)\n    .map(([k, v]) => `${k}: ${v}`)\n    .join(\"; \");\n  const tasksText = Object.entries(tasks)\n    .map(([k, v]) => `${k}: ${v}`)\n    .join(\"; \");\n\n  // Build the LLM prompt\n  const prompt = `\nYou are ${name}, age ${age}. Backstory: ${backstory}\nPersonality: ${personalityText}\nPassions: ${passionsText}\nGoals: ${goals}\nBehavior: ${behaviorText}\nTasks: ${tasksText}\n\nYou see the following tweet:\n\"${tweetText}\"\n\nAs ${name}, craft a reply that fits your personality and goals. Make sure to:\n• Sound like you (reference your passions if it makes sense)\n• Keep it concise (under 100 characters if possible)\n• Use your unique tone and style\n• Optionally include an emoji or two, if it matches your vibe\n\nNow generate your response.`;\n\n  return {\n    json: {\n      prompt: prompt.trim(),\n      user_message: tweetText\n    }\n  };\n});\n\nreturn result;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        520,
+        280
+      ],
+      "id": "2f3d18d7-c640-4bf5-b2c6-a64bb8876aa0",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "={{ $json.user_message }}"
+            },
+            {
+              "type": "AIMessagePromptTemplate",
+              "message": "Return your response **only** as a single JSON object with exactly one key"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        700,
+        280
+      ],
+      "id": "87c1a1a2-905d-40b6-a2db-1af9e10315c4",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        500
+      ],
+      "id": "610cdc0d-9bb6-430a-aba6-f502af21ee66",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TOuGLgTNVTVMzK9E",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ",
+          "mode": "list",
+          "cachedResultName": "Scrape sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "tweet": "={{ $json.text }}",
+            "tweetId": "={{ $('Merge').item.json.tweetId }}",
+            "waiting": "Ready"
+          },
+          "matchingColumns": [
+            "tweetId"
+          ],
+          "schema": [
+            {
+              "id": "tweetId",
+              "displayName": "tweetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "likeCount",
+              "displayName": "likeCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "viewCount",
+              "displayName": "viewCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "retweetCount",
+              "displayName": "retweetCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "quoteCount",
+              "displayName": "quoteCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "replyCount",
+              "displayName": "replyCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "waiting",
+              "displayName": "waiting",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tweet",
+              "displayName": "tweet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1060,
+        280
+      ],
+      "id": "35fd43b7-ac2b-4675-8759-1b1af5c3a662",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ken1f6zXHNnF73UL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -100,
+        700
+      ],
+      "id": "c4311545-cceb-4ec4-9a7c-2d0310e34c16",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ",
+          "mode": "list",
+          "cachedResultName": "Scrape sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        160,
+        720
+      ],
+      "id": "60ab41c9-160c-42b3-894e-f3c7d6aee0c0",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ken1f6zXHNnF73UL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.tweet }}",
+        "additionalFields": {
+          "inReplyToStatusId": {
+            "__rl": true,
+            "value": "={{ $json.tweetId }}",
+            "mode": "id"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        560,
+        680
+      ],
+      "id": "daf7304b-252c-4ce3-be4b-26e5a50c3be2",
+      "name": "X",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "c1B6gFpYsNW6WKuc",
+          "name": "X account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ",
+          "mode": "list",
+          "cachedResultName": "Scrape sheet ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1hE3U32D25risMc9qCQY87azEETBAQunwnvAB-3KmORQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "status": "Replied",
+            "tweetId": "={{ $('Google Sheets3').item.json.tweetId }}"
+          },
+          "matchingColumns": [
+            "tweetId"
+          ],
+          "schema": [
+            {
+              "id": "tweetId",
+              "displayName": "tweetId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "likeCount",
+              "displayName": "likeCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "viewCount",
+              "displayName": "viewCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "retweetCount",
+              "displayName": "retweetCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "quoteCount",
+              "displayName": "quoteCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "replyCount",
+              "displayName": "replyCount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "createdAt",
+              "displayName": "createdAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tweet",
+              "displayName": "tweet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1180,
+        720
+      ],
+      "id": "21fd17cb-6043-480d-873a-8e9eb4bbf6fe",
+      "name": "Google Sheets4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Ken1f6zXHNnF73UL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "characters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "2"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        80,
+        380
+      ],
+      "id": "7fd02d3e-ec1e-4438-b818-4668c3319a99",
+      "name": "Get Character",
+      "credentials": {
+        "supabaseApi": {
+          "id": "s2RsPZ8ZhR0TZsUa",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "numberOfItems": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserItemList",
+      "typeVersion": 1,
+      "position": [
+        860,
+        500
+      ],
+      "id": "9ce67687-0da7-49ec-b718-228eb8b1ea8e",
+      "name": "Item List Output Parser"
+    }
+  ],
+  "pinData": {
+    "Twitter Demo": [
+      {
+        "json": {
+          "tweets": [
+            {
+              "type": "tweet",
+              "id": "1930211652021993893",
+              "url": "https://x.com/buildwithricky/status/1930211652021993893",
+              "twitterUrl": "https://twitter.com/buildwithricky/status/1930211652021993893",
+              "text": "The way I’m doing lead gen for tech jobs, I might’ve missed my true calling in sales 😂💼 #TechLife #DevLife #JobHunt #BuildInPublic",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 2,
+              "createdAt": "Wed Jun 04 10:34:54 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211652021993893",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "buildwithricky",
+                "url": "https://x.com/buildwithricky",
+                "twitterUrl": "https://twitter.com/buildwithricky",
+                "id": "1750119567777501184",
+                "name": "buildwithricky",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1918028262166421504/BKHQXgqp_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1750119567777501184/1730651014",
+                "description": "🚀 Digital Architect 👋 Helping you with Web Development & Brand development 👨‍💻 Building mobile applications ✉️|Collab/Enquiries - DM",
+                "location": "London, England",
+                "followers": 30,
+                "following": 54,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Wed Jan 24 11:33:26 +0000 2024",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "linktr.ee/buildwithricky",
+                        "expanded_url": "https://linktr.ee/buildwithricky",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/O5XGPNUONI"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 222,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 20,
+                "statusesCount": 455,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      88,
+                      97
+                    ],
+                    "text": "TechLife"
+                  },
+                  {
+                    "indices": [
+                      98,
+                      106
+                    ],
+                    "text": "DevLife"
+                  },
+                  {
+                    "indices": [
+                      107,
+                      115
+                    ],
+                    "text": "JobHunt"
+                  },
+                  {
+                    "indices": [
+                      116,
+                      130
+                    ],
+                    "text": "BuildInPublic"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211592907698274",
+              "url": "https://x.com/Rejeki9000/status/1930211592907698274",
+              "twitterUrl": "https://twitter.com/Rejeki9000/status/1930211592907698274",
+              "text": "Azen? More like A-Zen of making Web3 simple. \n\n#DeFi #NoCode\n#Meme smarter, earn faster. Powered by #AIAgent from #aZen. Join Now👇  https://t.co/Ho4Jds08Mf",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 0,
+              "createdAt": "Wed Jun 04 10:34:40 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211592907698274",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "Rejeki9000",
+                "url": "https://x.com/Rejeki9000",
+                "twitterUrl": "https://twitter.com/Rejeki9000",
+                "id": "1622766291869396993",
+                "name": "Rejeki",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1859999000189108230/kMPVD3rq_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1622766291869396993/1732293295",
+                "description": "Bintang kehidupan\n\nGen⚫00001287",
+                "location": "",
+                "followers": 48,
+                "following": 943,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": false,
+                "createdAt": "Tue Feb 07 01:17:01 +0000 2023",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 1282,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 36,
+                "statusesCount": 2585,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      47,
+                      52
+                    ],
+                    "text": "DeFi"
+                  },
+                  {
+                    "indices": [
+                      53,
+                      60
+                    ],
+                    "text": "NoCode"
+                  },
+                  {
+                    "indices": [
+                      61,
+                      66
+                    ],
+                    "text": "Meme"
+                  },
+                  {
+                    "indices": [
+                      100,
+                      108
+                    ],
+                    "text": "AIAgent"
+                  },
+                  {
+                    "indices": [
+                      114,
+                      119
+                    ],
+                    "text": "aZen"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [
+                  {
+                    "display_url": "azenprotocol.io/s/?key=A-CKNA6…",
+                    "expanded_url": "https://azenprotocol.io/s/?key=A-CKNA63&v=1",
+                    "indices": [
+                      132,
+                      155
+                    ],
+                    "url": "https://t.co/Ho4Jds08Mf"
+                  }
+                ],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211529967722904",
+              "url": "https://x.com/thickskullrejb/status/1930211529967722904",
+              "twitterUrl": "https://twitter.com/thickskullrejb/status/1930211529967722904",
+              "text": "@Iockedyouup i need a website to do it for me help",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 1,
+              "quoteCount": 0,
+              "viewCount": 3,
+              "createdAt": "Wed Jun 04 10:34:24 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": true,
+              "inReplyToId": "1930211177423843437",
+              "conversationId": "1930210939065847946",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "thickskullrejb",
+                "url": "https://x.com/thickskullrejb",
+                "twitterUrl": "https://twitter.com/thickskullrejb",
+                "id": "1522361558986379265",
+                "name": "robin 😵‍💫 🦷",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1911493786300981250/LGIGQmFA_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1522361558986379265/1744571728",
+                "description": "agent of chaos angel of death\nautistic lesbian robin buckley \nprofessional yellowjackets content consumer",
+                "location": "wiskayok , nj",
+                "followers": 331,
+                "following": 447,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": false,
+                "createdAt": "Thu May 05 23:44:42 +0000 2022",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 101915,
+                "hasCustomTimelines": true,
+                "isTranslator": false,
+                "mediaCount": 1019,
+                "statusesCount": 11445,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1612488976006516738"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": [
+                  {
+                    "id_str": "1365414746007207943",
+                    "indices": [
+                      0,
+                      12
+                    ],
+                    "name": "nora xcx IS SEEING LORDE",
+                    "screen_name": "Iockedyouup"
+                  }
+                ]
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211468919595330",
+              "url": "https://x.com/bally_eclipse/status/1930211468919595330",
+              "twitterUrl": "https://twitter.com/bally_eclipse/status/1930211468919595330",
+              "text": "The barrier to building anything is so low! What a time to be alive you can literally think of an idea and build an MVP in like 15 minutes. AI is crazy, and I’m looking forward to humanity becoming more creative!",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 1,
+              "createdAt": "Wed Jun 04 10:34:10 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211468919595330",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "bally_eclipse",
+                "url": "https://x.com/bally_eclipse",
+                "twitterUrl": "https://twitter.com/bally_eclipse",
+                "id": "353776232",
+                "name": "Bally",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1253772174067929090/2zySOuZx_normal.jpg",
+                "coverPicture": "",
+                "description": "I won't stop working hard until I no longer have to introduce myself anymore! Instagram:abubakar_c",
+                "location": "",
+                "followers": 524,
+                "following": 501,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": false,
+                "createdAt": "Fri Aug 12 16:29:52 +0000 2011",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 7998,
+                "hasCustomTimelines": true,
+                "isTranslator": false,
+                "mediaCount": 23,
+                "statusesCount": 13796,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1166147966278807553"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211172290093459",
+              "url": "https://x.com/Nocode_work/status/1930211172290093459",
+              "twitterUrl": "https://twitter.com/Nocode_work/status/1930211172290093459",
+              "text": "NoCodeWork for E-commerce\nBoost your e-commerce business with NoCodeWork!\nAutomate order processing, inventory, and customer support without writing a single line of code.\nSave time, reduce errors, and focus on growing your store!\n#NoCodeWork #Ecommerce #Automation #NoCode",
+              "source": "Twitter for iPhone",
+              "retweetCount": 1,
+              "replyCount": 0,
+              "likeCount": 1,
+              "quoteCount": 0,
+              "viewCount": 5,
+              "createdAt": "Wed Jun 04 10:32:59 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211172290093459",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "Nocode_work",
+                "url": "https://x.com/Nocode_work",
+                "twitterUrl": "https://twitter.com/Nocode_work",
+                "id": "1914282335207612416",
+                "name": "Nocodework",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1914282814918250496/Cjy-kpGy_normal.png",
+                "coverPicture": "",
+                "description": "",
+                "location": "",
+                "followers": 22,
+                "following": 2,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Mon Apr 21 11:37:57 +0000 2025",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 6,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 57,
+                "statusesCount": 145,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      231,
+                      242
+                    ],
+                    "text": "NoCodeWork"
+                  },
+                  {
+                    "indices": [
+                      243,
+                      253
+                    ],
+                    "text": "Ecommerce"
+                  },
+                  {
+                    "indices": [
+                      254,
+                      265
+                    ],
+                    "text": "Automation"
+                  },
+                  {
+                    "indices": [
+                      266,
+                      273
+                    ],
+                    "text": "NoCode"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211074617553263",
+              "url": "https://x.com/CanadasPreneur/status/1930211074617553263",
+              "twitterUrl": "https://twitter.com/CanadasPreneur/status/1930211074617553263",
+              "text": "TELUS Reignites National #StandWithOwners Contest with Over $1 Million in Prizes for Canadian Entrepreneurs\nhttps://t.co/L3WEPinR71\n#business #news #smallbusiness #entrepreneurs #TELUS \n@MTone123 \n@TELUS",
+              "source": "Twitter for iPhone",
+              "retweetCount": 1,
+              "replyCount": 0,
+              "likeCount": 1,
+              "quoteCount": 0,
+              "viewCount": 6,
+              "createdAt": "Wed Jun 04 10:32:36 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211074617553263",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "CanadasPreneur",
+                "url": "https://x.com/CanadasPreneur",
+                "twitterUrl": "https://twitter.com/CanadasPreneur",
+                "id": "1043190253190873088",
+                "name": "Canada's Entrepreneur",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1904330344490291200/jxWjVojC_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1043190253190873088/1596208916",
+                "description": "We talk to the entrepreneurs who are making it happen throughout Canada.​",
+                "location": "Toronto",
+                "followers": 382,
+                "following": 277,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Fri Sep 21 17:28:32 +0000 2018",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "canadasentrepreneur.com",
+                        "expanded_url": "https://canadasentrepreneur.com",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/Qb5xo7LGTm"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 117,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 1185,
+                "statusesCount": 1944,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      25,
+                      41
+                    ],
+                    "text": "StandWithOwners"
+                  },
+                  {
+                    "indices": [
+                      132,
+                      141
+                    ],
+                    "text": "business"
+                  },
+                  {
+                    "indices": [
+                      142,
+                      147
+                    ],
+                    "text": "news"
+                  },
+                  {
+                    "indices": [
+                      148,
+                      162
+                    ],
+                    "text": "smallbusiness"
+                  },
+                  {
+                    "indices": [
+                      163,
+                      177
+                    ],
+                    "text": "entrepreneurs"
+                  },
+                  {
+                    "indices": [
+                      178,
+                      184
+                    ],
+                    "text": "TELUS"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [
+                  {
+                    "display_url": "canadasentrepreneur.com/article/telus-…",
+                    "expanded_url": "https://canadasentrepreneur.com/article/telus-reignites-national-standwithowners-contest-with-over-1-million-in-prizes-for-canadian-entrepreneurs/",
+                    "indices": [
+                      108,
+                      131
+                    ],
+                    "url": "https://t.co/L3WEPinR71"
+                  }
+                ],
+                "user_mentions": [
+                  {
+                    "id_str": "199527887",
+                    "indices": [
+                      186,
+                      195
+                    ],
+                    "name": "Mario Toneguzzi",
+                    "screen_name": "MTone123"
+                  },
+                  {
+                    "id_str": "6975832",
+                    "indices": [
+                      197,
+                      203
+                    ],
+                    "name": "TELUS",
+                    "screen_name": "TELUS"
+                  }
+                ]
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930211001074417773",
+              "url": "https://x.com/NuellaWrites4U/status/1930211001074417773",
+              "twitterUrl": "https://twitter.com/NuellaWrites4U/status/1930211001074417773",
+              "text": "Look up your potential users on X, LinkedIn or Instagram. Create a list of 10-15 and DM them. Break the ice with warm convo and ask them to fill a survey.\nBest way to validate an idea is by talking to real people.\nThese are your beta testers if you go ahead and build an MVP.",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 9,
+              "createdAt": "Wed Jun 04 10:32:18 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930211001074417773",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "NuellaWrites4U",
+                "url": "https://x.com/NuellaWrites4U",
+                "twitterUrl": "https://twitter.com/NuellaWrites4U",
+                "id": "1913246201807552512",
+                "name": "Nuella | Content Specialist",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1918264619195416577/VnWBgXfE_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1913246201807552512/1748550975",
+                "description": "Content Marketing Specialist | I help SaaS & Service-based brands get more visibility, leads, and customers with strategic full-funnel content",
+                "location": "Free content audit ➡️",
+                "followers": 33,
+                "following": 36,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": true,
+                "createdAt": "Fri Apr 18 15:00:31 +0000 2025",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "forms.gle/v18ZH9d7B3orAm…",
+                        "expanded_url": "https://forms.gle/v18ZH9d7B3orAmWXA",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/qqmGTKDnhW"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 577,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 1,
+                "statusesCount": 376,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1930209185246929004"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": {
+                "type": "tweet",
+                "id": "1929806057708064885",
+                "url": "https://x.com/besinpublic/status/1929806057708064885",
+                "twitterUrl": "https://twitter.com/besinpublic/status/1929806057708064885",
+                "text": "I have an idea for a new project\n\nHow do I best validate that idea?",
+                "source": "Twitter for iPhone",
+                "retweetCount": 2,
+                "replyCount": 158,
+                "likeCount": 193,
+                "quoteCount": 5,
+                "viewCount": 20679,
+                "createdAt": "Tue Jun 03 07:43:12 +0000 2025",
+                "lang": "en",
+                "bookmarkCount": 59,
+                "isReply": false,
+                "inReplyToId": null,
+                "conversationId": "1929806057708064885",
+                "inReplyToUserId": null,
+                "inReplyToUsername": null,
+                "author": {
+                  "type": "user",
+                  "userName": "besinpublic",
+                  "url": "https://x.com/besinpublic",
+                  "twitterUrl": "https://twitter.com/besinpublic",
+                  "id": "1918054722927509506",
+                  "name": "Besim",
+                  "isVerified": false,
+                  "isBlueVerified": true,
+                  "verifiedType": null,
+                  "profilePicture": "https://pbs.twimg.com/profile_images/1918056517816700928/VdqIpNzm_normal.jpg",
+                  "coverPicture": "https://pbs.twimg.com/profile_banners/1918054722927509506/1746452663",
+                  "description": "I quit gaming to pursue my dreams | building https://t.co/UrWHVnjgVK (NPO, $1.5k TR)",
+                  "location": "Earth",
+                  "followers": 2079,
+                  "following": 134,
+                  "status": "",
+                  "canDm": true,
+                  "canMediaTag": true,
+                  "createdAt": "Thu May 01 21:27:50 +0000 2025",
+                  "entities": {
+                    "description": {
+                      "hashtags": [],
+                      "symbols": [],
+                      "urls": [
+                        {
+                          "display_url": "communityfo.rest",
+                          "expanded_url": "http://www.communityfo.rest",
+                          "indices": [
+                            45,
+                            68
+                          ],
+                          "url": "https://t.co/UrWHVnjgVK"
+                        }
+                      ],
+                      "user_mentions": []
+                    },
+                    "url": {
+                      "urls": [
+                        {
+                          "display_url": "communityfo.rest",
+                          "expanded_url": "https://communityfo.rest",
+                          "indices": [
+                            0,
+                            23
+                          ],
+                          "url": "https://t.co/nyNIYJUoPk"
+                        }
+                      ]
+                    }
+                  },
+                  "fastFollowersCount": 0,
+                  "favouritesCount": 5104,
+                  "hasCustomTimelines": false,
+                  "isTranslator": false,
+                  "mediaCount": 127,
+                  "statusesCount": 2879,
+                  "withheldInCountries": [],
+                  "affiliatesHighlightedLabel": {},
+                  "possiblySensitive": false,
+                  "pinnedTweetIds": [
+                    "1924503524244680877"
+                  ],
+                  "profile_bio": {},
+                  "isAutomated": false,
+                  "automatedBy": null
+                },
+                "extendedEntities": {},
+                "card": null,
+                "place": {},
+                "entities": {
+                  "hashtags": [],
+                  "symbols": [],
+                  "timestamps": [],
+                  "urls": [],
+                  "user_mentions": []
+                },
+                "quoted_tweet": null,
+                "retweeted_tweet": null
+              },
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210849639072255",
+              "url": "https://x.com/NuellaWrites4U/status/1930210849639072255",
+              "twitterUrl": "https://twitter.com/NuellaWrites4U/status/1930210849639072255",
+              "text": "Look up your potential users on X, LinkedIn or Instagram. Create a list of 10-15 and DM them. Break the ice with warm convo and ask them to fill a survey.\nBest way to validate an idea is by talking to real people.\nThese are your beta testers if you go ahead and build an MVP.",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 26,
+              "createdAt": "Wed Jun 04 10:31:42 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210849639072255",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "NuellaWrites4U",
+                "url": "https://x.com/NuellaWrites4U",
+                "twitterUrl": "https://twitter.com/NuellaWrites4U",
+                "id": "1913246201807552512",
+                "name": "Nuella | Content Specialist",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1918264619195416577/VnWBgXfE_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1913246201807552512/1748550975",
+                "description": "Content Marketing Specialist | I help SaaS & Service-based brands get more visibility, leads, and customers with strategic full-funnel content",
+                "location": "Free content audit ➡️",
+                "followers": 33,
+                "following": 36,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": true,
+                "createdAt": "Fri Apr 18 15:00:31 +0000 2025",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "forms.gle/v18ZH9d7B3orAm…",
+                        "expanded_url": "https://forms.gle/v18ZH9d7B3orAmWXA",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/qqmGTKDnhW"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 577,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 1,
+                "statusesCount": 376,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1930209185246929004"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": {
+                "type": "tweet",
+                "id": "1929806057708064885",
+                "url": "https://x.com/besinpublic/status/1929806057708064885",
+                "twitterUrl": "https://twitter.com/besinpublic/status/1929806057708064885",
+                "text": "I have an idea for a new project\n\nHow do I best validate that idea?",
+                "source": "Twitter for iPhone",
+                "retweetCount": 2,
+                "replyCount": 158,
+                "likeCount": 193,
+                "quoteCount": 5,
+                "viewCount": 20679,
+                "createdAt": "Tue Jun 03 07:43:12 +0000 2025",
+                "lang": "en",
+                "bookmarkCount": 59,
+                "isReply": false,
+                "inReplyToId": null,
+                "conversationId": "1929806057708064885",
+                "inReplyToUserId": null,
+                "inReplyToUsername": null,
+                "author": {
+                  "type": "user",
+                  "userName": "besinpublic",
+                  "url": "https://x.com/besinpublic",
+                  "twitterUrl": "https://twitter.com/besinpublic",
+                  "id": "1918054722927509506",
+                  "name": "Besim",
+                  "isVerified": false,
+                  "isBlueVerified": true,
+                  "verifiedType": null,
+                  "profilePicture": "https://pbs.twimg.com/profile_images/1918056517816700928/VdqIpNzm_normal.jpg",
+                  "coverPicture": "https://pbs.twimg.com/profile_banners/1918054722927509506/1746452663",
+                  "description": "I quit gaming to pursue my dreams | building https://t.co/UrWHVnjgVK (NPO, $1.5k TR)",
+                  "location": "Earth",
+                  "followers": 2079,
+                  "following": 134,
+                  "status": "",
+                  "canDm": true,
+                  "canMediaTag": true,
+                  "createdAt": "Thu May 01 21:27:50 +0000 2025",
+                  "entities": {
+                    "description": {
+                      "hashtags": [],
+                      "symbols": [],
+                      "urls": [
+                        {
+                          "display_url": "communityfo.rest",
+                          "expanded_url": "http://www.communityfo.rest",
+                          "indices": [
+                            45,
+                            68
+                          ],
+                          "url": "https://t.co/UrWHVnjgVK"
+                        }
+                      ],
+                      "user_mentions": []
+                    },
+                    "url": {
+                      "urls": [
+                        {
+                          "display_url": "communityfo.rest",
+                          "expanded_url": "https://communityfo.rest",
+                          "indices": [
+                            0,
+                            23
+                          ],
+                          "url": "https://t.co/nyNIYJUoPk"
+                        }
+                      ]
+                    }
+                  },
+                  "fastFollowersCount": 0,
+                  "favouritesCount": 5104,
+                  "hasCustomTimelines": false,
+                  "isTranslator": false,
+                  "mediaCount": 127,
+                  "statusesCount": 2879,
+                  "withheldInCountries": [],
+                  "affiliatesHighlightedLabel": {},
+                  "possiblySensitive": false,
+                  "pinnedTweetIds": [
+                    "1924503524244680877"
+                  ],
+                  "profile_bio": {},
+                  "isAutomated": false,
+                  "automatedBy": null
+                },
+                "extendedEntities": {},
+                "card": null,
+                "place": {},
+                "entities": {
+                  "hashtags": [],
+                  "symbols": [],
+                  "timestamps": [],
+                  "urls": [],
+                  "user_mentions": []
+                },
+                "quoted_tweet": null,
+                "retweeted_tweet": null
+              },
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210501637669284",
+              "url": "https://x.com/RTIwala/status/1930210501637669284",
+              "twitterUrl": "https://twitter.com/RTIwala/status/1930210501637669284",
+              "text": "7/8\n🌟 Leaders &amp; Innovators\nBig Tech: Infosys, Wipro, TCS, LTIMindtree, Tata Electronics\nStartups: Zoho, Freshworks, Postman, BrowserStack, WebEngage\nIndia’s IT sector is scaling fast—locally &amp; globally.\n\n#IndianStartups #SaaS #Growth",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 1,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 2,
+              "createdAt": "Wed Jun 04 10:30:19 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": true,
+              "inReplyToId": "1930210500018577887",
+              "conversationId": "1930210490740793638",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "RTIwala",
+                "url": "https://x.com/RTIwala",
+                "twitterUrl": "https://twitter.com/RTIwala",
+                "id": "2455001628",
+                "name": "RTIwala | Empowering the masses...",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1430064627245719552/fzTMojCP_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/2455001628/1634012198",
+                "description": "We're a VC-backed Legaltech startup, empowering the masses through vital info/records from Govt & result-driven legal solutions (via @RTIwalaOfficial).",
+                "location": "India",
+                "followers": 829,
+                "following": 890,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": false,
+                "createdAt": "Sun Apr 20 12:53:20 +0000 2014",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": [
+                      {
+                        "id_str": "0",
+                        "indices": [
+                          133,
+                          149
+                        ],
+                        "name": "",
+                        "screen_name": "RTIwalaOfficial"
+                      }
+                    ]
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "cc.rti.link",
+                        "expanded_url": "http://cc.rti.link/",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/RHHNRJhfos"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 1496,
+                "hasCustomTimelines": true,
+                "isTranslator": false,
+                "mediaCount": 5023,
+                "statusesCount": 16023,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      212,
+                      227
+                    ],
+                    "text": "IndianStartups"
+                  },
+                  {
+                    "indices": [
+                      228,
+                      233
+                    ],
+                    "text": "SaaS"
+                  },
+                  {
+                    "indices": [
+                      234,
+                      241
+                    ],
+                    "text": "Growth"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210501121777801",
+              "url": "https://x.com/CM_Hearts/status/1930210501121777801",
+              "twitterUrl": "https://twitter.com/CM_Hearts/status/1930210501121777801",
+              "text": "This casual chest bag is perfect for a day out in the sun. The lightweight and multicoloured material makes it a stylish accessory. https://t.co/0uh9c3vqOh #bizbubble #UKGiftHour #SmallBusiness #firsttmaster #UKHashtags #ATSocialMedia #BritHour #UkBiz #ATSocialMedia #spdc #spring https://t.co/kKsPS5yfvM",
+              "source": "Twitter for iPhone",
+              "retweetCount": 1,
+              "replyCount": 0,
+              "likeCount": 1,
+              "quoteCount": 0,
+              "viewCount": 1,
+              "createdAt": "Wed Jun 04 10:30:19 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210501121777801",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "CM_Hearts",
+                "url": "https://x.com/CM_Hearts",
+                "twitterUrl": "https://twitter.com/CM_Hearts",
+                "id": "3089582279",
+                "name": "C&M Hearts 💜",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1890200044944396288/Ym__o0ny_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/3089582279/1739556853",
+                "description": "Welcome to C&M Hearts #Gifts and #Accessories – your one-stop shop for unique and thoughtful gifts, #stylish accessories, and everything in between!",
+                "location": "United Kingdom",
+                "followers": 21557,
+                "following": 22550,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": true,
+                "createdAt": "Thu Mar 12 18:36:22 +0000 2015",
+                "entities": {
+                  "description": {
+                    "hashtags": [
+                      {
+                        "indices": [
+                          22,
+                          28
+                        ],
+                        "text": "Gifts"
+                      },
+                      {
+                        "indices": [
+                          33,
+                          45
+                        ],
+                        "text": "Accessories"
+                      },
+                      {
+                        "indices": [
+                          100,
+                          108
+                        ],
+                        "text": "stylish"
+                      }
+                    ],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "ebay.co.uk/usr/c_mhearts",
+                        "expanded_url": "https://www.ebay.co.uk/usr/c_mhearts",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/eztuyxrmk4"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 126744,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 13592,
+                "statusesCount": 234368,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1927753902041997317"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {
+                "media": [
+                  {
+                    "display_url": "pic.x.com/kKsPS5yfvM",
+                    "expanded_url": "https://x.com/CM_Hearts/status/1930210501121777801/photo/1",
+                    "ext_media_availability": {
+                      "status": "Available"
+                    },
+                    "features": {
+                      "large": {
+                        "faces": []
+                      }
+                    },
+                    "id_str": "1930210498303111168",
+                    "indices": [
+                      281,
+                      304
+                    ],
+                    "media_key": "3_1930210498303111168",
+                    "media_url_https": "https://pbs.twimg.com/media/Gsl8OLUWMAALhfU.jpg",
+                    "original_info": {
+                      "focus_rects": [
+                        {
+                          "h": 1147,
+                          "w": 2048,
+                          "x": 0,
+                          "y": 0
+                        },
+                        {
+                          "h": 2048,
+                          "w": 2048,
+                          "x": 0,
+                          "y": 0
+                        },
+                        {
+                          "h": 2048,
+                          "w": 1796,
+                          "x": 252,
+                          "y": 0
+                        },
+                        {
+                          "h": 2048,
+                          "w": 1024,
+                          "x": 665,
+                          "y": 0
+                        },
+                        {
+                          "h": 2048,
+                          "w": 2048,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "height": 2048,
+                      "width": 2048
+                    },
+                    "sizes": {
+                      "large": {
+                        "h": 2048,
+                        "w": 2048
+                      }
+                    },
+                    "type": "photo",
+                    "url": "https://t.co/kKsPS5yfvM"
+                  }
+                ]
+              },
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      156,
+                      166
+                    ],
+                    "text": "bizbubble"
+                  },
+                  {
+                    "indices": [
+                      167,
+                      178
+                    ],
+                    "text": "UKGiftHour"
+                  },
+                  {
+                    "indices": [
+                      179,
+                      193
+                    ],
+                    "text": "SmallBusiness"
+                  },
+                  {
+                    "indices": [
+                      194,
+                      207
+                    ],
+                    "text": "firsttmaster"
+                  },
+                  {
+                    "indices": [
+                      208,
+                      219
+                    ],
+                    "text": "UKHashtags"
+                  },
+                  {
+                    "indices": [
+                      220,
+                      234
+                    ],
+                    "text": "ATSocialMedia"
+                  },
+                  {
+                    "indices": [
+                      235,
+                      244
+                    ],
+                    "text": "BritHour"
+                  },
+                  {
+                    "indices": [
+                      245,
+                      251
+                    ],
+                    "text": "UkBiz"
+                  },
+                  {
+                    "indices": [
+                      252,
+                      266
+                    ],
+                    "text": "ATSocialMedia"
+                  },
+                  {
+                    "indices": [
+                      267,
+                      272
+                    ],
+                    "text": "spdc"
+                  },
+                  {
+                    "indices": [
+                      273,
+                      280
+                    ],
+                    "text": "spring"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [
+                  {
+                    "display_url": "ebay.us/m/DL7L75",
+                    "expanded_url": "http://ebay.us/m/DL7L75",
+                    "indices": [
+                      132,
+                      155
+                    ],
+                    "url": "https://t.co/0uh9c3vqOh"
+                  }
+                ],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210422147428824",
+              "url": "https://x.com/ArkaFincap/status/1930210422147428824",
+              "twitterUrl": "https://twitter.com/ArkaFincap/status/1930210422147428824",
+              "text": "Our connectors bring us people who trust them, and we make sure that trust is honored.\nAt Arka, we don’t just enable business, we enable the enablers.\nHear what our connectors have to say about working with Arka.\n\n#Arka #NBFC #SmallBusiness #India #Partner #Feedback https://t.co/nJCr34Mtbx",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 1,
+              "createdAt": "Wed Jun 04 10:30:00 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210422147428824",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "ArkaFincap",
+                "url": "https://x.com/ArkaFincap",
+                "twitterUrl": "https://twitter.com/ArkaFincap",
+                "id": "1597826844140900353",
+                "name": "Arka Fincap Limited",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1738076197743960064/KxZInuKL_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1597826844140900353/1730785505",
+                "description": "Arka Fincap Limited, a subsidiary of Kirloskar Oil Engines Limited (KOEL), is a Non-Banking Finance Company (NBFC) providing financing solutions to MSMEs & SMEs",
+                "location": "India",
+                "followers": 28,
+                "following": 7,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Wed Nov 30 05:37:10 +0000 2022",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 20,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 242,
+                "statusesCount": 254,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {
+                "media": [
+                  {
+                    "additional_media_info": {
+                      "monetizable": false
+                    },
+                    "allow_download_status": {
+                      "allow_download": true
+                    },
+                    "display_url": "pic.x.com/nJCr34Mtbx",
+                    "expanded_url": "https://x.com/ArkaFincap/status/1930210422147428824/video/1",
+                    "ext_media_availability": {
+                      "status": "Available"
+                    },
+                    "id_str": "1930173837469007872",
+                    "indices": [
+                      267,
+                      290
+                    ],
+                    "media_key": "13_1930173837469007872",
+                    "media_url_https": "https://pbs.twimg.com/amplify_video_thumb/1930173837469007872/img/ILaHVyVFCrkcvAP5.jpg",
+                    "original_info": {
+                      "focus_rects": [],
+                      "height": 1920,
+                      "width": 1080
+                    },
+                    "sizes": {
+                      "large": {
+                        "h": 1920,
+                        "w": 1080
+                      }
+                    },
+                    "type": "video",
+                    "url": "https://t.co/nJCr34Mtbx",
+                    "video_info": {
+                      "aspect_ratio": [
+                        9,
+                        16
+                      ],
+                      "duration_millis": 55063,
+                      "variants": [
+                        {
+                          "content_type": "application/x-mpegURL",
+                          "url": "https://video.twimg.com/amplify_video/1930173837469007872/pl/PEDyK4u-deLnFaYG.m3u8?tag=14"
+                        },
+                        {
+                          "bitrate": 632000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173837469007872/vid/avc1/320x568/ueVl8Vvpx42K73n3.mp4?tag=14"
+                        },
+                        {
+                          "bitrate": 950000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173837469007872/vid/avc1/480x852/wlUIoWAS9eiA8UXm.mp4?tag=14"
+                        },
+                        {
+                          "bitrate": 2176000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173837469007872/vid/avc1/720x1280/SNF8x463VNUWGNQW.mp4?tag=14"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      214,
+                      219
+                    ],
+                    "text": "Arka"
+                  },
+                  {
+                    "indices": [
+                      220,
+                      225
+                    ],
+                    "text": "NBFC"
+                  },
+                  {
+                    "indices": [
+                      226,
+                      240
+                    ],
+                    "text": "SmallBusiness"
+                  },
+                  {
+                    "indices": [
+                      241,
+                      247
+                    ],
+                    "text": "India"
+                  },
+                  {
+                    "indices": [
+                      248,
+                      256
+                    ],
+                    "text": "Partner"
+                  },
+                  {
+                    "indices": [
+                      257,
+                      266
+                    ],
+                    "text": "Feedback"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210421652291884",
+              "url": "https://x.com/ArkaFincap/status/1930210421652291884",
+              "twitterUrl": "https://twitter.com/ArkaFincap/status/1930210421652291884",
+              "text": "When your business is your world, you want someone who gets it. At Arka, a loan isn’t just a transaction. It’s a relationship. One that says your growth is ours too.\nFamiliar in approach, personal in service, and unwavering in trust.\n#Arka #NBFC #SmallBusiness #CustomerExperience https://t.co/hDIguZvLgG",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 1,
+              "createdAt": "Wed Jun 04 10:30:00 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210421652291884",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "ArkaFincap",
+                "url": "https://x.com/ArkaFincap",
+                "twitterUrl": "https://twitter.com/ArkaFincap",
+                "id": "1597826844140900353",
+                "name": "Arka Fincap Limited",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1738076197743960064/KxZInuKL_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1597826844140900353/1730785505",
+                "description": "Arka Fincap Limited, a subsidiary of Kirloskar Oil Engines Limited (KOEL), is a Non-Banking Finance Company (NBFC) providing financing solutions to MSMEs & SMEs",
+                "location": "India",
+                "followers": 28,
+                "following": 7,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Wed Nov 30 05:37:10 +0000 2022",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 20,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 242,
+                "statusesCount": 254,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {
+                "media": [
+                  {
+                    "additional_media_info": {
+                      "monetizable": false
+                    },
+                    "allow_download_status": {
+                      "allow_download": true
+                    },
+                    "display_url": "pic.x.com/hDIguZvLgG",
+                    "expanded_url": "https://x.com/ArkaFincap/status/1930210421652291884/video/1",
+                    "ext_media_availability": {
+                      "status": "Available"
+                    },
+                    "id_str": "1930173332126617601",
+                    "indices": [
+                      281,
+                      304
+                    ],
+                    "media_key": "13_1930173332126617601",
+                    "media_url_https": "https://pbs.twimg.com/amplify_video_thumb/1930173332126617601/img/7w54fGT0xGPAqYL-.jpg",
+                    "original_info": {
+                      "focus_rects": [],
+                      "height": 1920,
+                      "width": 1080
+                    },
+                    "sizes": {
+                      "large": {
+                        "h": 1920,
+                        "w": 1080
+                      }
+                    },
+                    "type": "video",
+                    "url": "https://t.co/hDIguZvLgG",
+                    "video_info": {
+                      "aspect_ratio": [
+                        9,
+                        16
+                      ],
+                      "duration_millis": 52033,
+                      "variants": [
+                        {
+                          "content_type": "application/x-mpegURL",
+                          "url": "https://video.twimg.com/amplify_video/1930173332126617601/pl/EHFscw94WILqYz69.m3u8?tag=14"
+                        },
+                        {
+                          "bitrate": 632000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173332126617601/vid/avc1/320x568/bgHvgkou8y3TM5mi.mp4?tag=14"
+                        },
+                        {
+                          "bitrate": 950000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173332126617601/vid/avc1/480x852/3IlfpVm-T-oEc4Zz.mp4?tag=14"
+                        },
+                        {
+                          "bitrate": 2176000,
+                          "content_type": "video/mp4",
+                          "url": "https://video.twimg.com/amplify_video/1930173332126617601/vid/avc1/720x1280/mbkvIUz0pWrdtA9r.mp4?tag=14"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      234,
+                      239
+                    ],
+                    "text": "Arka"
+                  },
+                  {
+                    "indices": [
+                      240,
+                      245
+                    ],
+                    "text": "NBFC"
+                  },
+                  {
+                    "indices": [
+                      246,
+                      260
+                    ],
+                    "text": "SmallBusiness"
+                  },
+                  {
+                    "indices": [
+                      261,
+                      280
+                    ],
+                    "text": "CustomerExperience"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210240043315487",
+              "url": "https://x.com/JupiterCodes/status/1930210240043315487",
+              "twitterUrl": "https://twitter.com/JupiterCodes/status/1930210240043315487",
+              "text": "🚀 Just submitted 100xStyler for Chrome Web Store review!\n\nA small step for me, a styled leap for the web! 😎\nStay tuned for launch updates.\n\n1 Product like feeling\n#LearnInPublic #letsconnect #buildinpublic #CONNECT #100DaysOfCode https://t.co/IesUNtibEg",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 3,
+              "createdAt": "Wed Jun 04 10:29:17 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210240043315487",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "JupiterCodes",
+                "url": "https://x.com/JupiterCodes",
+                "twitterUrl": "https://twitter.com/JupiterCodes",
+                "id": "1918453635975188480",
+                "name": "Jupiter Coder",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1918549834405232640/lJa4LbM2_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1918453635975188480/1747759106",
+                "description": "100xDev 🎖️ Full-Stack 🎖️\nLearning Dev.\nLearning in Public",
+                "location": "",
+                "followers": 56,
+                "following": 223,
+                "status": "",
+                "canDm": false,
+                "canMediaTag": true,
+                "createdAt": "Fri May 02 23:52:56 +0000 2025",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 67,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 52,
+                "statusesCount": 180,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1929588034917351458"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {
+                "media": [
+                  {
+                    "allow_download_status": {
+                      "allow_download": true
+                    },
+                    "display_url": "pic.x.com/IesUNtibEg",
+                    "expanded_url": "https://x.com/JupiterCodes/status/1930210240043315487/photo/1",
+                    "ext_media_availability": {
+                      "status": "Available"
+                    },
+                    "features": {
+                      "large": {
+                        "faces": []
+                      }
+                    },
+                    "id_str": "1930210069561651208",
+                    "indices": [
+                      230,
+                      253
+                    ],
+                    "media_key": "3_1930210069561651208",
+                    "media_url_https": "https://pbs.twimg.com/media/Gsl71OIasAgQejH.jpg",
+                    "original_info": {
+                      "focus_rects": [
+                        {
+                          "h": 802,
+                          "w": 1432,
+                          "x": 227,
+                          "y": 0
+                        },
+                        {
+                          "h": 802,
+                          "w": 802,
+                          "x": 542,
+                          "y": 0
+                        },
+                        {
+                          "h": 802,
+                          "w": 704,
+                          "x": 591,
+                          "y": 0
+                        },
+                        {
+                          "h": 802,
+                          "w": 401,
+                          "x": 743,
+                          "y": 0
+                        },
+                        {
+                          "h": 802,
+                          "w": 1886,
+                          "x": 0,
+                          "y": 0
+                        }
+                      ],
+                      "height": 802,
+                      "width": 1886
+                    },
+                    "sizes": {
+                      "large": {
+                        "h": 802,
+                        "w": 1886
+                      }
+                    },
+                    "type": "photo",
+                    "url": "https://t.co/IesUNtibEg"
+                  }
+                ]
+              },
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      163,
+                      177
+                    ],
+                    "text": "LearnInPublic"
+                  },
+                  {
+                    "indices": [
+                      178,
+                      190
+                    ],
+                    "text": "letsconnect"
+                  },
+                  {
+                    "indices": [
+                      191,
+                      205
+                    ],
+                    "text": "buildinpublic"
+                  },
+                  {
+                    "indices": [
+                      206,
+                      214
+                    ],
+                    "text": "CONNECT"
+                  },
+                  {
+                    "indices": [
+                      215,
+                      229
+                    ],
+                    "text": "100DaysOfCode"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930210010409164999",
+              "url": "https://x.com/KinyanjuiNM/status/1930210010409164999",
+              "twitterUrl": "https://twitter.com/KinyanjuiNM/status/1930210010409164999",
+              "text": "Most people quit just before the compounding kicks in. Hold the line.\n\n#buildinpublic",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 5,
+              "createdAt": "Wed Jun 04 10:28:22 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930210010409164999",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "KinyanjuiNM",
+                "url": "https://x.com/KinyanjuiNM",
+                "twitterUrl": "https://twitter.com/KinyanjuiNM",
+                "id": "1782094666030104577",
+                "name": "Nelson Kinyanjui",
+                "isVerified": false,
+                "isBlueVerified": true,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1929123832838635520/IjLJ9Yfb_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1782094666030104577/1748054515",
+                "description": "Email Marketer |  Copywriter\n| Helping Solopreneurs & Brands Grow With High-Converting Emails\n| 📩 Strategy | ✍️ Copy | 📊 List Growth",
+                "location": "Nairobi, Kenya",
+                "followers": 76,
+                "following": 27,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": false,
+                "createdAt": "Sun Apr 21 17:12:07 +0000 2024",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "nk-letter.kit.com/2032b5d521",
+                        "expanded_url": "https://nk-letter.kit.com/2032b5d521",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/wjAurL24wF"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 718,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 7,
+                "statusesCount": 257,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      71,
+                      85
+                    ],
+                    "text": "buildinpublic"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930209961683906755",
+              "url": "https://x.com/thesupersaurabh/status/1930209961683906755",
+              "twitterUrl": "https://twitter.com/thesupersaurabh/status/1930209961683906755",
+              "text": "No fancy tools. Just results.\nWhat’s your budget stack?\n\n#buildinpublic #ecommerce #fbads #bootstrapped #woocommerce #founderjourney",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 8,
+              "createdAt": "Wed Jun 04 10:28:11 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": true,
+              "inReplyToId": "1930209959385415770",
+              "conversationId": "1930209959385415770",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "thesupersaurabh",
+                "url": "https://x.com/thesupersaurabh",
+                "twitterUrl": "https://twitter.com/thesupersaurabh",
+                "id": "797102544698937344",
+                "name": "Saurabh",
+                "isVerified": false,
+                "isBlueVerified": false,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1862129183939608576/bEpLTwSi_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/797102544698937344/1684748614",
+                "description": "Let's push our limits to be limitless.",
+                "location": "India",
+                "followers": 21,
+                "following": 50,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": true,
+                "createdAt": "Fri Nov 11 15:43:50 +0000 2016",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "thesaurabh.tech",
+                        "expanded_url": "http://thesaurabh.tech",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/XGR4tjl4YS"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 88,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 33,
+                "statusesCount": 192,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1921173818896195714"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      57,
+                      71
+                    ],
+                    "text": "buildinpublic"
+                  },
+                  {
+                    "indices": [
+                      72,
+                      82
+                    ],
+                    "text": "ecommerce"
+                  },
+                  {
+                    "indices": [
+                      83,
+                      89
+                    ],
+                    "text": "fbads"
+                  },
+                  {
+                    "indices": [
+                      90,
+                      103
+                    ],
+                    "text": "bootstrapped"
+                  },
+                  {
+                    "indices": [
+                      104,
+                      116
+                    ],
+                    "text": "woocommerce"
+                  },
+                  {
+                    "indices": [
+                      117,
+                      132
+                    ],
+                    "text": "founderjourney"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930209897922093475",
+              "url": "https://x.com/KinyanjuiNM/status/1930209897922093475",
+              "twitterUrl": "https://twitter.com/KinyanjuiNM/status/1930209897922093475",
+              "text": "Momentum &gt; motivation. Keep moving.\n\n#buildinpublic \n#Motivation",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 5,
+              "createdAt": "Wed Jun 04 10:27:55 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930209897922093475",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "KinyanjuiNM",
+                "url": "https://x.com/KinyanjuiNM",
+                "twitterUrl": "https://twitter.com/KinyanjuiNM",
+                "id": "1782094666030104577",
+                "name": "Nelson Kinyanjui",
+                "isVerified": false,
+                "isBlueVerified": true,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1929123832838635520/IjLJ9Yfb_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1782094666030104577/1748054515",
+                "description": "Email Marketer |  Copywriter\n| Helping Solopreneurs & Brands Grow With High-Converting Emails\n| 📩 Strategy | ✍️ Copy | 📊 List Growth",
+                "location": "Nairobi, Kenya",
+                "followers": 76,
+                "following": 27,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": false,
+                "createdAt": "Sun Apr 21 17:12:07 +0000 2024",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "nk-letter.kit.com/2032b5d521",
+                        "expanded_url": "https://nk-letter.kit.com/2032b5d521",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/wjAurL24wF"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 718,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 7,
+                "statusesCount": 257,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      40,
+                      54
+                    ],
+                    "text": "buildinpublic"
+                  },
+                  {
+                    "indices": [
+                      56,
+                      67
+                    ],
+                    "text": "Motivation"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            },
+            {
+              "type": "tweet",
+              "id": "1930209822491767189",
+              "url": "https://x.com/getfeedspace/status/1930209822491767189",
+              "twitterUrl": "https://twitter.com/getfeedspace/status/1930209822491767189",
+              "text": "Hey #buildinpublic, quick update:\n\nWe just launched our Feedspace Chrome Extension to help you import import #reviews &amp; #testimonials straight from #Upwork &amp; #LinkedIn in seconds.\n\nMore platforms coming soon. 🔜\n\nTry it out and let us know what you think.\n\nhttps://t.co/mLzqxOrMej",
+              "source": "Twitter for iPhone",
+              "retweetCount": 0,
+              "replyCount": 0,
+              "likeCount": 0,
+              "quoteCount": 0,
+              "viewCount": 5,
+              "createdAt": "Wed Jun 04 10:27:37 +0000 2025",
+              "lang": "en",
+              "bookmarkCount": 0,
+              "isReply": false,
+              "inReplyToId": null,
+              "conversationId": "1930209822491767189",
+              "inReplyToUserId": null,
+              "inReplyToUsername": null,
+              "author": {
+                "type": "user",
+                "userName": "getfeedspace",
+                "url": "https://x.com/getfeedspace",
+                "twitterUrl": "https://twitter.com/getfeedspace",
+                "id": "1329440077676761096",
+                "name": "Feedspace",
+                "isVerified": false,
+                "isBlueVerified": true,
+                "verifiedType": null,
+                "profilePicture": "https://pbs.twimg.com/profile_images/1693500719670935552/YA1ACu-O_normal.jpg",
+                "coverPicture": "https://pbs.twimg.com/profile_banners/1329440077676761096/1706108323",
+                "description": "Feedspace allows you to capture, collect and import any sort of content from your users, customers or clients to use that internally or externally with a link.",
+                "location": "",
+                "followers": 127,
+                "following": 3,
+                "status": "",
+                "canDm": true,
+                "canMediaTag": true,
+                "createdAt": "Thu Nov 19 15:03:35 +0000 2020",
+                "entities": {
+                  "description": {
+                    "hashtags": [],
+                    "symbols": [],
+                    "urls": [],
+                    "user_mentions": []
+                  },
+                  "url": {
+                    "urls": [
+                      {
+                        "display_url": "feedspace.io/?utm_source=tw…",
+                        "expanded_url": "https://www.feedspace.io/?utm_source=twitter&utm_medium=social&utm_campaign=twitter_profile",
+                        "indices": [
+                          0,
+                          23
+                        ],
+                        "url": "https://t.co/WEoDYglZay"
+                      }
+                    ]
+                  }
+                },
+                "fastFollowersCount": 0,
+                "favouritesCount": 1532,
+                "hasCustomTimelines": false,
+                "isTranslator": false,
+                "mediaCount": 155,
+                "statusesCount": 1807,
+                "withheldInCountries": [],
+                "affiliatesHighlightedLabel": {},
+                "possiblySensitive": false,
+                "pinnedTweetIds": [
+                  "1924402614751367244"
+                ],
+                "profile_bio": {},
+                "isAutomated": false,
+                "automatedBy": null
+              },
+              "extendedEntities": {},
+              "card": null,
+              "place": {},
+              "entities": {
+                "hashtags": [
+                  {
+                    "indices": [
+                      4,
+                      18
+                    ],
+                    "text": "buildinpublic"
+                  },
+                  {
+                    "indices": [
+                      109,
+                      117
+                    ],
+                    "text": "reviews"
+                  },
+                  {
+                    "indices": [
+                      124,
+                      137
+                    ],
+                    "text": "testimonials"
+                  },
+                  {
+                    "indices": [
+                      152,
+                      159
+                    ],
+                    "text": "Upwork"
+                  },
+                  {
+                    "indices": [
+                      166,
+                      175
+                    ],
+                    "text": "LinkedIn"
+                  }
+                ],
+                "symbols": [],
+                "timestamps": [],
+                "urls": [
+                  {
+                    "display_url": "chromewebstore.google.com/detail/feedspa…",
+                    "expanded_url": "https://chromewebstore.google.com/detail/feedspace-review-testimon/kkbpoekaicjebadkhhdfcejhkjifhjbi",
+                    "indices": [
+                      264,
+                      287
+                    ],
+                    "url": "https://t.co/mLzqxOrMej"
+                  }
+                ],
+                "user_mentions": []
+              },
+              "quoted_tweet": null,
+              "retweeted_tweet": null
+            }
+          ],
+          "has_next_page": true,
+          "next_cursor": "DAADDAABCgABGsl9RVQXQaUKAAIayXubW5dxlQAIAAIAAAACCAADAAAAAAgABAAAAAAKAAUayX2FloAnEAoABhrJfYWWf9jwAAA"
+        }
+      }
+    ],
+    "Get Character": [
+      {
+        "json": {
+          "id": 2,
+          "name": "Izunna",
+          "age": 22,
+          "backstory": "Izunna is a mechanical + AI systems engineering student who picked up coding in November 2024. By February 2025, he launched FlexSphere—a platform for building fast, beautiful MVPs and AI-powered automations. He builds in public, shares what he learns, and vibes through exams while shipping.",
+          "personality": {
+            "tone": "sincere, low-key, focused",
+            "humor": "dry but relatable",
+            "style": "clean, conversational",
+            "values": [
+              "craft",
+              "clarity",
+              "momentum",
+              "humility"
+            ]
+          },
+          "passions": {
+            "primary": [
+              "AI agents",
+              "workflow automation",
+              "MVP development",
+              "no-code tools",
+              "beautiful UI"
+            ],
+            "secondary": [
+              "startup design",
+              "developer storytelling",
+              "smart bots",
+              "helping others build"
+            ]
+          },
+          "goals": "To help startups and creators move faster with AI and automation. To make tools that save time, feel smart, and look great. To grow FlexSphere into a studio for next-gen AI products.",
+          "behavior": {
+            "vibe": "young founder energy with a builder's discipline",
+            "outreach": "DMs builders with ideas, never salesy, always helpful",
+            "replying": "genuinely curious, friendly, usually adds a helpful note or demo offer",
+            "engagement": "likes thoughtful tweets, reposts dev wins, keeps it honest"
+          },
+          "tasks": {
+            "post": [
+              "FlexSphere updates",
+              "automation workflows",
+              "AI demos",
+              "Telegram bots",
+              "behind-the-scenes dev moments"
+            ],
+            "reply": [
+              "answer questions",
+              "support AI builders",
+              "celebrate others shipping"
+            ],
+            "share": [
+              "useful tools",
+              "real dev struggles",
+              "tweets that make someone build"
+            ]
+          },
+          "created_at": "2025-06-01T00:00:00+00:00"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Twitter Demo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twitter Demo": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Character",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Character": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Item List Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7f3b3ced-2565-469e-a3aa-be8ea0860b41",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "43f41171f978d6e4fd640ea224154bfe1dbef6407c7ab202172edf8d34442aa6"
+  },
+  "id": "AZiaYMQUoex1iPb5",
+  "tags": []
+}
